@@ -12,5 +12,6 @@ Route::get('/user', function (Request $request) {
 Route::prefix('auth')->group( function() {
     Route::get('index',[AuthController::class, 'index']);
     Route::post('create', [AuthController::class,'create']);
-
 });
+
+//nlknajnag
