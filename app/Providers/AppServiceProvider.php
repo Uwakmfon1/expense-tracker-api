@@ -4,7 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Passport\Passport;
+use Laravel\Sanctum\PersonalAccessToken;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,10 +26,6 @@ class AppServiceProvider extends ServiceProvider
             return config('app.frontend_url')."/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
         });
 
-        // Passport::loadKeysFrom(__DIR__.'/../secrets/oauth');
-
-        // $this->registerPolicies();
-        // Passport::routes();
-
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
     }
 }
