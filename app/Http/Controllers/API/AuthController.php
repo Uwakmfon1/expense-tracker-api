@@ -8,6 +8,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,48 +16,6 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-
-    /**
-    8. API Endpoints
-    User Management
-    POST /signup: Register a new user.
-
-    POST /login: Authenticate a user.
-
-    GET /profile: Retrieve user profile details.
-
-    PUT /profile: Update user profile information.
-
-     *
-    Expense and Income Logging
-    POST /transactions: Log a new expense or income.
-
-    GET /transactions: Retrieve all transactions for a specific user.
-
-    PUT /transactions/{id}: Update an existing transaction.
-
-    DELETE /transactions/{id}: Delete a transaction.
-
-
-     * Budget Management
-    POST /budgets: Set a new budget for a category.
-
-    GET /budgets: Retrieve budget details for a user.
-
-    PUT /budgets/{id}: Update an existing budget.
-
-    DELETE /budgets/{id}: Delete a budget.
-
-
-    Savings Goals
-    POST /goals: Set a new savings goal.
-
-    GET /goals: Retrieve all savings goals for a user.
-
-    PUT /goals/{id}: Update a savings goal.
-
-    DELETE /goals/{id}: Delete a savings goal.
-     */
 
     public function index()
     {
@@ -91,6 +50,8 @@ class AuthController extends Controller
 
 
         $accessToken = $user->createToken($request->name . 'authToken')->plainTextToken;
+        Log::info('Registered user successful',['accessToken'=>$accessToken]);
+
         return response()->json([
             'message' => 'successfully saved to database',
             'accessToken' => $accessToken
@@ -100,54 +61,34 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-   $credentials = $request->validate([
+     $validated_user = $request->validate([
             'email' => ['required','email'],
             'password' => ['required']
         ]);
 
- if (Auth::attempt($credentials)) {
-     $user = Auth::user();
-     $token = $user->createToken($user->name .'authToken')->plainTextToken;
+        $user = User::where('email', $validated_user['email'])->first();
+        $user->tokens()->delete();
+        if (!$user || !Hash::check($validated_user['password'], $user->password)) {
+            $errors = [];
+            if(!$user) $errors['email'] = "Please supply a valid email address";
 
+            if($user && !Hash::check($validated_user['password'], $user->password)) $errors['password']= "Incorrect Password";
 
+            Log::error('Invalid credentials attempt', [
+                'email' => $validated_user['email'],
+            ]);
 
+            return response()->json([
+                'message' => 'Invalid Credentials',
+                'error'=>$errors,
+            ],422);
+        }
+
+        $token = $user->createToken($user->name .'authToken')->plainTextToken;
         return response()->json([
-            'token'=>$token,
-            'message' => 'user logged in successfully '
-        ], 200);
-    }
-
-        return response()->json([
-            'error'=>'Invalid Credentials'
-        ],400);
-
-
-//           if(Auth::attempt(['email'=> $request->email, 'password'=> $request->password])) {
-//               $user = Auth::user();
-//               $token = $user->createToken('API Token')->accessToken;
-//
-//               // Return the token in a successful response
-//               return response()->json([
-//                   'token' => $token,
-//                   'message' => 'user logged in successfully '
-//               ], 200);
-//           }
-
-//               return response()->json([
-//                   'error'=>'Invalid Credentials'
-//               ],400);
-
-
-//        }catch(\Exception $e){
-//            return response()->json([
-//                'message'=>"An error occurred while trying to validate details",
-//                'error'=>$e->getMessage(),
-//            ],500);
-
-//        }
-
-
-
+            'message'=>'Successfully logged in',
+            'access_token'=>$token
+        ],200);
     }
 
     public function getInfo(Request $request)
@@ -155,16 +96,27 @@ class AuthController extends Controller
         $result  = $request->validate(['email'=>'required|email']);
 
         try{
-            if(!$result){
-                return response()->json(['message'=>'An error occurred'],401);
-            }
-            return response()->json(User::where('email',$result['email'])->all());
+//            if(!$result){
+//                return response()->json(['message'=>'An error occurred'],401);
+//            }
+            return response()->json(User::where('email',$result['email'])->first());
 
         }catch (\Exception $e){
             return response()->json([
                 'message'=>"An error occurred while trying to validate details",
                 'error'=>$e->getMessage(),
             ],500);
+        }
+    }
+
+    public function logout(Request $request)
+    {
+//        dd($request);
+        try{
+            $request->user()->tokens()->delete();
+            return response()->json(['successfully logged out'],200);
+        }catch(\Exception $e){
+            return response()->json(['success'=>false,'error'=>$e->getMessage()],400);
         }
     }
 }

@@ -13,15 +13,18 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 Route::post('register',[AuthController::class,'register']);
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('login',[AuthController::class, 'login']);
+Route::post('login',[AuthController::class, 'login']);
 
+Route::middleware(['auth:sanctum'])->group(function () {
     //Category Routes
     Route::post('/category/create',[CategoryController::class,'create']);
     Route::get('/category/show',[CategoryController::class,'getCategories']);
     Route::put('/category/update/{id}',[CategoryController::class,'updateCategory']);
     Route::patch('/category/edit/{id}',[CategoryController::class,'editCategory']);
     Route::post('/category/delete',[CategoryController::class,'delete']);
+
+    Route::post('/getInfo',[AuthController::class,'getInfo']);
+    Route::post('/logout',[AuthController::class,'logout']);
 });
 
 

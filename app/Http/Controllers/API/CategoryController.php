@@ -41,7 +41,9 @@ class CategoryController extends Controller
 
     public function getCategories()
     {
+
         $query = Category::where('user_id', Auth::id())->get();
+
         return response()->json([
            'message'=>'Success!',
            'data'=>$query
