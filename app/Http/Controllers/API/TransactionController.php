@@ -53,14 +53,34 @@ class TransactionController extends Controller
             }
     }
 
-    public function edit()
+    public function edit(Request $request)
     {
-
+        try{
+            $table = $request->input('table');
+            if($table == 'expenses'){
+               return $this->transactionService->editExpenses($request);
+            }elseif($table == 'income'){
+                return $this->transactionService->editIncome($request);
+            }
+        }catch (\Exception $e)
+        {
+            return response()->json(['success'=>false,'message'=>$e->getMessage()]);
+        }
     }
 
-    public function destroy()
+    public function destroy(Request $request)
     {
-
+        try{
+            $table = $request->input('table');
+            if($table == 'expenses'){
+                return $this->transactionService->destroyExpenses($request);
+            }elseif($table == 'income'){
+                return $this->transactionService->destroyIncome($request);
+            }
+        }catch (\Exception $e)
+        {
+            return response()->json(['success'=>false,'message'=>$e->getMessage()]);
+        }
     }
 
 

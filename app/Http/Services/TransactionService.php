@@ -44,5 +44,55 @@ class TransactionService
         return Income::create($validated);
     }
 
+    public function editExpenses(Request $request)
+    {
+        $validated = Validator::make($request->all(),[
+            'id'=>'required',
+            'table'=>'required',
+            'name'=>'required',
+            'amount'=>'required',
+            'start_date'=>'required',
+            'end_date'=>'required'
+        ])->validated();
 
+        Expenses::where('id',$validated['id'])->update($request->except(['id','table']));
+        return response()->json(['message'=>'successfully edited table'],201);
+    }
+
+    public function editIncome(Request $request)
+    {
+        $validated = Validator::make($request->all(),[
+            'id'=>'required',
+            'table'=>'required',
+            'category_id'=>'required',
+            'name'=>'required',
+            'type'=>'required',
+            'amount'=>'required',
+            'received_at'=>'required'
+        ])->validated();
+
+      Income::where('id',$validated['id'])->update($request->except(['id','table']));
+      return response()->json(['message'=>'successfully edited table'],201);
+    }
+
+    public function destroyExpenses(Request $request)
+    {
+        $validated = Validator::make($request->all(),[
+            'id'=>'required',
+            'table'=>'required'
+        ])->validated();
+
+        Expenses::where('id',$validated['id'])->delete();
+        return response()->json(['message'=>'successfully deleted record'],201);
+    }
+
+    public function destroyIncome(Request $request)
+    {
+        $validated = Validator::make($request->all(),[
+            'id'=>'required',
+            'table'=>'required'
+        ])->validated();
+        Income::where('id',$validated['id'])->delete();
+        return response()->json(['message'=>'deleted successfully'],200);
+    }
 }

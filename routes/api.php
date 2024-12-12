@@ -44,7 +44,7 @@ Route::post('login',[AuthController::class, 'login']);
     Route::get('/transactions',[TransactionController::class, 'index']);
     Route::post('/transactions',[TransactionController::class, 'store']);
     Route::put('/transactions',[TransactionController::class, 'edit']);
-    Route::post('/transactions/delete/{id}',[TransactionController::class, 'destroy']);
+    Route::post('/transactions/delete',[TransactionController::class, 'destroy']);
 
 // Savings Goals get'/goals
 // put/goals/{id}
