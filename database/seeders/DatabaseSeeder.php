@@ -3,9 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Seeders\API\ExpenseCategorySeeder;
+use Database\Seeders\API\IncomeCategorySeeder;
 use Database\Seeders\API\ParentCategorySeeder;
 use Illuminate\Database\Seeder;
+
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,12 +17,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+//         User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+//        User::factory()->create([
+//            ['name' => 'Test User',
+//            'email' => 'test@example.com',],
+//            [
+//                'name'=>'John Doe',
+//                'email'=>'johndoe1@ex.com'
+//            ]
+//        ]);
+
+        $this->call([
+            ParentCategorySeeder::class,
+            ExpenseCategorySeeder::class,
+            IncomeCategorySeeder::class
         ]);
-        $this->call(ParentCategorySeeder::class);
     }
 }
