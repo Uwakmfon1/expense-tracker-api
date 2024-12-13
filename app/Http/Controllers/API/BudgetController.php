@@ -4,56 +4,38 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\StoreBudgetRequest;
+use App\Http\Requests\API\UpdateBudgetRequest;
+use App\Http\Services\API\BudgetService;
 use App\Models\Budget;
 use Illuminate\Http\Request;
-
+use App\Http\Requests\API\DestroyBudgetRequest;
 class BudgetController extends Controller
 {
+    public BudgetService $budgetService;
+    public function __construct(BudgetService $budgetService)
+    {
+        $this->budgetService = $budgetService;
+    }
+
     public function index()
     {
-        $budget = Budget::where('user_id', Auth::id())->get();
-        try {
-            return response()->json([
-                'success'=>true,
-                'budget'=>$budget
-            ]);
-        }catch(\Exception $e){
-            return response()->json(['success'=>false, 'message'=>$e->getMessage()]);
-        }
+        return $this->budgetService->index();
     }
 
     public function create(StoreBudgetRequest $request)
     {
-        try{
-            $validated = $request->validated();
-            $budget = Budget::create($validated);
-            return response()->json([
-                'success'=>true,
-                'message'=>'successfully saved budget',
-                'budget'=>$budget
-            ],200);
-        }catch(\Exception $e){
-            return response()->json([
-               'success'=>false,
-               'error'=>$e->getMessage()
-            ],401);
-        }
+        return $this->budgetService->create($request);
     }
 
 
-
-    public function edit(StoreBudgetRequest $request, $id)
+    public function update(UpdateBudgetRequest $request)
     {
-
+        return $this->budgetService->update($request);
     }
 
-    public function update()
+    public function destroy(DestroyBudgetRequest $request)
     {
-
-    }
-
-    public function destroy()
-    {
+            return $this->budgetService->destroy($request);
 
     }
 

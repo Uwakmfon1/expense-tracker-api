@@ -5,8 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\StoreExpensesRequest;
 use App\Http\Requests\API\StoreIncomeRequest;
-use App\Http\Services\TransactionService;
-use App\Models\Expenses;
+use App\Http\Services\API\TransactionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +26,6 @@ class TransactionController extends Controller
                 ->select('incomes.name as incomeName','incomes.amount as incomeAmount','incomes.received_at')
                 ->where('user_id',1))
             ->get();
-
         return response()->json([
            'success'=>true,
            'message'=>$transaction
@@ -53,14 +51,14 @@ class TransactionController extends Controller
             }
     }
 
-    public function edit(Request $request)
+    public function update(Request $request, $id)
     {
         try{
             $table = $request->input('table');
             if($table == 'expenses'){
-               return $this->transactionService->editExpenses($request);
+               return $this->transactionService->editExpenses($request,$id);
             }elseif($table == 'income'){
-                return $this->transactionService->editIncome($request);
+                return $this->transactionService->editIncome($request,$id);
             }
         }catch (\Exception $e)
         {
@@ -68,14 +66,14 @@ class TransactionController extends Controller
         }
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, $id)
     {
         try{
             $table = $request->input('table');
             if($table == 'expenses'){
-                return $this->transactionService->destroyExpenses($request);
-            }elseif($table == 'income'){
-                return $this->transactionService->destroyIncome($request);
+                return $this->transactionService->destroyExpenses($request,$id);
+            }elseif($table == 'incomes'){
+                return $this->transactionService->destroyIncome($request,$id);
             }
         }catch (\Exception $e)
         {
