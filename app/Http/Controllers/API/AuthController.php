@@ -28,7 +28,7 @@ class AuthController extends Controller
        $validator = Validator::make($request->all(),[
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string'
+            'password' => 'required|string|confirmed'
         ]);
 
         if($validator->fails()) {
@@ -50,10 +50,10 @@ class AuthController extends Controller
 
 
         $accessToken = $user->createToken($request->name . 'authToken')->plainTextToken;
-        Log::info('Registered user successful',['accessToken'=>$accessToken]);
+        Log::info('User created successfully',['accessToken'=>$accessToken]);
 
         return response()->json([
-            'message' => 'successfully saved to database',
+            'message' => 'User created successfully',
             'accessToken' => $accessToken
         ], 201);
     }
@@ -61,13 +61,13 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-     $validated_user = $request->validate([
-            'email' => ['required','email'],
-            'password' => ['required']
-        ]);
+         $validated_user = $request->validate([
+                'email' => ['required','email'],
+                'password' => ['required']
+         ]);
 
         $user = User::where('email', $validated_user['email'])->first();
-        $user->tokens()->delete();
+
         if (!$user || !Hash::check($validated_user['password'], $user->password)) {
             $errors = [];
             if(!$user) $errors['email'] = "Please supply a valid email address";
@@ -84,6 +84,7 @@ class AuthController extends Controller
             ],422);
         }
 
+        $user->tokens()->delete();
         $token = $user->createToken($user->name .'authToken')->plainTextToken;
         return response()->json([
             'message'=>'Successfully logged in',
@@ -91,14 +92,11 @@ class AuthController extends Controller
         ],200);
     }
 
+
     public function getInfo(Request $request)
     {
         $result  = $request->validate(['email'=>'required|email']);
-
         try{
-//            if(!$result){
-//                return response()->json(['message'=>'An error occurred'],401);
-//            }
             return response()->json(User::where('email',$result['email'])->first());
 
         }catch (\Exception $e){
@@ -111,7 +109,6 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-//        dd($request);
         try{
             $request->user()->tokens()->delete();
             return response()->json(['successfully logged out'],200);

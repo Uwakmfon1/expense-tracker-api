@@ -37,7 +37,6 @@ class TransactionController extends Controller
     {
         try {
             $type = $request->input('parent_category_id');
-
             if($type == 1){
                 return $this->transactionService->storeExpenses($request);
             }elseif($type == 2){

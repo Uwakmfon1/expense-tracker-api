@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\ParentCategory;
 use App\Models\User;
 use Database\Seeders\API\ExpenseCategorySeeder;
 use Database\Seeders\API\IncomeCategorySeeder;
@@ -25,6 +26,18 @@ class DatabaseSeeder extends Seeder
 //            [
 //                'name'=>'John Doe',
 //                'email'=>'johndoe1@ex.com'
+//            ]
+//        ]);
+//        ParentCategory::insert([
+//            [
+//                'name'=>'Expense',
+//                'created_at'=>now(),
+//                'updated_at'=>now(),
+//            ],
+//            [
+//                'name'=>'Income',
+//                'created_at'=>now(),
+//                'updated_at'=>now(),
 //            ]
 //        ]);
 

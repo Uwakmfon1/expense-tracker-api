@@ -2,26 +2,23 @@
 
 namespace App\Http\Services\API;
 
-use App\Http\Requests\API\EditCategoryRequest;
-use App\Http\Requests\API\StoreCategoryRequest;
+use App\Http\Requests\API\StoreGoalRequest;
+
 use App\Http\Requests\API\UpdateCategoryRequest;
 use App\Models\Category;
+use App\Models\Goal;
 use App\Models\ParentCategory;
 use Illuminate\Support\Facades\Log;
 
-class CategoryService
+class GoalService
 {
-
-    public function createCategory(StoreCategoryRequest $request)
+    public function createGoal( $request)
     {
         try {
-            $request['type']= ParentCategory::where('id',$request['parent_category_id'])->first()->name;
-
             $validated = $request->validated();
-            Category::create($validated);
-
+            Goal::create($validated);
             return response()->json([
-                'message'=>'Category saved Successfully',
+                'message'=>'Goal saved Successfully',
             ],201);
         } catch (\Exception $e) {
             Log::error('Invalid Credentials Supplied', [
@@ -30,26 +27,25 @@ class CategoryService
             return response()->json([
                 'message'=>"Couldn't save to database",
                 'errors'=>$e->getMessage(),
-            ],400);
+            ]);
         }
     }
 
-    public function getCategories()
+    public function getGoals()
     {
-        $query = Category::where('user_id', Auth::id())->get();
+        $query = Goal::where('user_id', 1)->get();   //Auth::id()
         return response()->json([
             'message'=>'Success!',
             'data'=>$query
         ]);
     }
 
-    public function updateCategory(UpdateCategoryRequest $request, $id)
+    public function updateGoal(UpdateCategoryRequest $request, $id)
     {
-        $validated = $request->validated();
-
         try{
-            Category::where('id',$id)->update($validated);
-            return response()->json(['message'=>'Successfully Updated Category'],200);
+            $validated = $request->validated();
+            Goal::where('id',$id)->update($validated);
+            return response()->json(['message'=>'Successfully Updated Goal'],200);
         }catch (\Exception $e){
             return response()->json([
                 'message'=>'Error Found! Could not update.',
@@ -58,10 +54,10 @@ class CategoryService
         }
     }
 
-    public function editCategory(EditCategoryRequest $request, $id)
+    public function editGoal(EditCategoryRequest $request, $id)
     {
         try {
-        $validated = $request->validated();
+            $validated = $request->validated();
             Category::where('id',$id)->update($validated->only(['name','type','description','image_url']));
             return response()->json([
                 'success'=>true,
@@ -72,6 +68,20 @@ class CategoryService
                 'message' =>'Update Failed',
                 'error'=>$e->getMessage()
             ],400);
+        }
+    }
+
+    public function deleteGoal($id)
+    {
+        try{
+            Goal::where('id',$id)->delete();
+            return response()->json([
+                'message' =>'successfully deleted the Goal'
+            ],201);
+        }catch(\Exception $e){
+            return response()->json([
+                'error'=>$e->getMessage()
+            ],401);
         }
     }
 }
